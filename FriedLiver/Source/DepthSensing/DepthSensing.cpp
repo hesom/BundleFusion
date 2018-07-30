@@ -15,7 +15,7 @@
 #include "TimingLogDepthSensing.h"
 #include "StdOutputLogger.h"
 #include "Util.h"
-
+#include <Eigen/Eigen>
 
 #include "DXUT.h"
 #include "DXUTcamera.h"
@@ -927,11 +927,31 @@ void StopScanningAndExit(bool aborted = false)
 		//write trajectory
 		const std::string saveFile = GlobalAppState::get().s_binaryDumpSensorFile;
 		std::vector<mat4f> trajectory;
+        auto sensorFile = SensorData(GlobalAppState::get().s_binaryDumpSensorFile);
 		g_depthSensingBundler->getTrajectoryManager()->getOptimizedTransforms(trajectory);
 		numValidTransforms = PoseHelper::countNumValidTransforms(trajectory);		numTransforms = (unsigned int)trajectory.size();
 		if (numValidTransforms < (unsigned int)std::round(0.5f * numTransforms)) valid = false; // not enough valid transforms
 		std::cout << "#VALID TRANSFORMS = " << numValidTransforms << std::endl;
-		((SensorDataReader*)g_depthSensingRGBDSensor)->saveToFile(saveFile, trajectory); //overwrite the original file
+		//((SensorDataReader*)g_depthSensingRGBDSensor)->saveToFile(saveFile, trajectory); //overwrite the original file
+
+        std::ofstream trajFile(util::directoryFromPath(GlobalAppState::get().s_binaryDumpSensorFile) + "trajectory.txt");
+        for (const auto& pose : trajectory) {
+            Eigen::Matrix3f rotation;
+            for (int col = 0; col < 3; col++) {
+                for (int row = 0; row < 3; row++) {
+                    rotation(row, col) = pose.at(row, col);
+                }
+            }
+            //std::cout << rotation << std::endl;
+            Eigen::Quaternionf q(rotation);
+            float tx = pose.at(0, 3);
+            float ty = pose.at(1, 3);
+            float tz = pose.at(2, 3);
+
+            trajFile << tx << " " << ty << " " << tz << " " <<
+                q.x() << " " << q.y() << " " << q.z() << " " << q.w() << "\n";
+        }
+        trajFile.close();
 
 		//if (GlobalAppState::get().s_sensorIdx == 8) ((SensorDataReader*)g_depthSensingRGBDSensor)->evaluateTrajectory(trajectory);
 
@@ -957,6 +977,8 @@ void StopScanningAndExit(bool aborted = false)
 	}
 	fflush(stdout);
 	//exit
+    ConditionManager::release(ConditionManager::Bundling);
+    ConditionManager::release(ConditionManager::Recon);
 	exit(0);
 }
 
@@ -1109,7 +1131,8 @@ void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* 
 		const std::string outDir = GlobalAppState::get().s_printTimingsDirectory;
 		if (!util::directoryExists(outDir)) util::makeDirectory(outDir);
 		TimingLog::printAllTimings(outDir); // might skip the last frames but whatever
-		exit(1);
+        StopScanningAndExit();
+		//exit(0);
 	}
 	if (!g_depthSensingRGBDSensor->isReceivingFrames() && GlobalAppState::get().s_sensorIdx == 8 && GlobalAppState::get().s_numSolveFramesBeforeExit != (unsigned int)-1) { //todo something better?
 		static unsigned int countPastLast = 0;

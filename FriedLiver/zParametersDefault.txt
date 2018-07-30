@@ -1,11 +1,13 @@
 // 0=Kinect; 1=PrimeSense; 2=KinectOne; 3=BinaryDumpReader; 4=NetworkSensor; 5=IntelSensor; 6=RealSense; 7=StructureSensor; 8=SensorDataReader (for offline processing)
-s_sensorIdx = 7;
+s_sensorIdx = 8;
 
-s_numSolveFramesBeforeExit = 30;//-1 //#frames to run after solve done, then saves and exits; -1 to stop after no more reintegration ops
+s_numSolveFramesBeforeExit = -1;//-1 //#frames to run after solve done, then saves and exits; -1 to stop after no more reintegration ops
+
+s_maxNumImages = 3000;
 
 s_generateVideo = false;
 s_generateVideoDir = "output/";
-s_printTimingsDirectory = "";
+s_printTimingsDirectory = "timings/";
 s_printConvergenceFile = "";
 s_topVideoTransformWorld = 1.0f 0.0f 0.0f 0.0f 0.0f 1.0f 0.0f 0.0f 0.0f 0.0f 1.0f 0.0f 0.0f 0.0f 0.0f 1.0f;
 s_topVideoCameraPose = 0.0f 0.0f 0.0f 0.0f; //rotation (deg around z axis), translation (m)
@@ -22,7 +24,7 @@ s_rayCastWidth = 320;		//should be same as integration except if rendering video
 s_rayCastHeight = 240;
 
 //trajectory manager/reintegration
-s_maxFrameFixes = 10;		//max number of frames reintegrated per frame 
+s_maxFrameFixes = 20;		//max number of frames reintegrated per frame 
 s_topNActive = 30;			//max number of active elements to be reintegrated (sorted list)
 s_minPoseDistSqrt = 0.0f;	//reintegrate everything above that pose distance (squared dist)
 
@@ -46,7 +48,7 @@ s_SDFIntegrationWeightMax = 99999999;	//maximum integration weight for a voxel
 // s_SDFBlockSize is pound defined (SDF_BLOCK_SIZE)
 // s_hashBucketSize is pound defined (HASH_BUCKET_SIZE)
 s_hashNumBuckets = 800000;				//smaller voxels require more space
-s_hashNumSDFBlocks = 200000;//100000;	//smaller voxels require more space
+s_hashNumSDFBlocks = 100000;//100000;	//smaller voxels require more space
 s_hashMaxCollisionLinkedListSize = 7;
 
 // raycast
@@ -55,7 +57,7 @@ s_SDFRayThresSampleDistFactor = 50.5f;	//(don't touch) s_SDFRayThresSampleDist =
 s_SDFRayThresDistFactor = 50.0f;		//(don't touch) s_SDFRayThresDist = s_SDFRayThresSampleDistFactor*s_rayIncrement;
 s_SDFUseGradients 		= false;		//analytic gradients for rendering
 
-s_binaryDumpSensorFile = "../data/sequence.sens";
+s_binaryDumpSensorFile = "D:\Uni\ToFML\Datasets\SUN3D\brown_bm_1\brown_bm_1\input.sens";
 s_binaryDumpSensorUseTrajectory = false;
 
 // filtering (unused here, see params in zParametersBundlingDefault.txt)
@@ -69,7 +71,7 @@ s_colorFilter = false;	//bilateral filter enabled depth
 
 s_integrationEnabled		= true;
 s_trackingEnabled			= true;
-s_timingsDetailledEnabled   = true;	//enable timing output
+s_timingsDetailledEnabled   = false;//enable timing output
 s_timingsTotalEnabled		= false;	//enable timing output
 s_garbageCollectionEnabled	= true;
 s_garbageCollectionStarve	= 0;		//decrement the voxel weight every n'th frame
@@ -94,7 +96,7 @@ s_remappingDepthDiscontinuityThresLin	 = 0.01f;
 
 s_bUseCameraCalibration = false;
 
-s_marchingCubesMaxNumTriangles = 3000000; // max buffer size for marching cube
+s_marchingCubesMaxNumTriangles = 60000; // max buffer size for marching cube
 
 //streaming parameters (streaming disabled for BundleFusion)
 s_streamingEnabled = false;
@@ -107,8 +109,8 @@ s_streamingPos = 0.0f 0.0f 3.0f 1.0f; // Depends on DepthMin and DepthMax
 s_streamingOutParts = 80;	// number of frames required to sweep through the entire hash
 
 //recording of the input data
-s_recordData = false;			// master flag for data recording: enables or disables data recording
-s_recordCompression = true;		//if recoding is enabled; then compression is used (.sens instead of .sensor)
+s_recordData = false; // master flag for data recording: enables or disables data recording
+s_recordCompression = false; //if recoding is enabled; then compression is used (.sens instead of .sensor)
 s_recordDataWidth = 640;		//only applies to the non compressed version (see RGBDSensor.cpp)
 s_recordDataHeight = 480;		//only applies to the non compressed version (see RGBDSensor.cpp)
 s_recordDataFile = "dump/recording.sens";
