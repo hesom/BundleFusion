@@ -934,7 +934,11 @@ void StopScanningAndExit(bool aborted = false)
 		std::cout << "#VALID TRANSFORMS = " << numValidTransforms << std::endl;
 		//((SensorDataReader*)g_depthSensingRGBDSensor)->saveToFile(saveFile, trajectory); //overwrite the original file
 
-        std::ofstream trajFile(util::directoryFromPath(GlobalAppState::get().s_binaryDumpSensorFile) + "trajectory.txt");
+        if (!util::directoryExists(util::directoryFromPath(GlobalAppState::get().s_binaryDumpSensorFile) + "/BundleFusion")) {
+            util::makeDirectory(util::directoryFromPath(GlobalAppState::get().s_binaryDumpSensorFile) + "/BundleFusion");
+        }
+
+        std::ofstream trajFile(util::directoryFromPath(GlobalAppState::get().s_binaryDumpSensorFile) + "/BundleFusion/trajectory.txt");
         for (const auto& pose : trajectory) {
             Eigen::Matrix3f rotation;
             for (int col = 0; col < 3; col++) {
@@ -957,7 +961,7 @@ void StopScanningAndExit(bool aborted = false)
 
 		//save ply
 		std::cout << "[marching cubes] ";
-		StopScanningAndExtractIsoSurfaceMC(util::removeExtensions(GlobalAppState::get().s_binaryDumpSensorFile) + ".ply", true); //force overwrite and existing plys
+		StopScanningAndExtractIsoSurfaceMC(util::directoryFromPath(GlobalAppState::get().s_binaryDumpSensorFile) + "/BundleFusion/reconstruction.ply", true); //force overwrite and existing plys
 		//StopScanningAndExtractIsoSurfaceMC("debug/" + util::removeExtensions(util::fileNameFromPath(GlobalAppState::get().s_binaryDumpSensorFile)) + ".ply", true);
 		std::cout << "done!" << std::endl;
 		//write out confirmation file
