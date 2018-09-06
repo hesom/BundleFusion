@@ -928,7 +928,11 @@ void StopScanningAndExit(bool aborted = false)
 		const std::string saveFile = GlobalAppState::get().s_binaryDumpSensorFile;
 		std::vector<mat4f> trajectory;
         auto sensorFile = SensorData(GlobalAppState::get().s_binaryDumpSensorFile);
-		g_depthSensingBundler->getTrajectoryManager()->getOptimizedTransforms(trajectory);
+		//g_depthSensingBundler->getTrajectoryManager()->getOptimizedTransforms(trajectory);
+        auto frames = g_depthSensingBundler->getTrajectoryManager()->getFrames();
+        for (auto frame : frames) {
+            trajectory.push_back(frame.integratedTransform);
+        }
 		numValidTransforms = PoseHelper::countNumValidTransforms(trajectory);		numTransforms = (unsigned int)trajectory.size();
 		if (numValidTransforms < (unsigned int)std::round(0.5f * numTransforms)) valid = false; // not enough valid transforms
 		std::cout << "#VALID TRANSFORMS = " << numValidTransforms << std::endl;

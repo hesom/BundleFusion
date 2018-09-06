@@ -306,12 +306,12 @@ int main(int argc, char** argv)
 	}
 	catch (const std::exception& e)
 	{
-		MessageBoxA(NULL, e.what(), "Exception caught", MB_ICONERROR);
+		//MessageBoxA(NULL, e.what(), "Exception caught", MB_ICONERROR);
 		exit(EXIT_FAILURE);
 	}
 	catch (...)
 	{
-		MessageBoxA(NULL, "UNKNOWN EXCEPTION", "Exception caught", MB_ICONERROR);
+		//MessageBoxA(NULL, "UNKNOWN EXCEPTION", "Exception caught", MB_ICONERROR);
 		exit(EXIT_FAILURE);
 	}
 
